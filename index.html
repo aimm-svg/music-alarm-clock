@@ -180,5 +180,14 @@
   <video id="dummy-video" class="hide" loop playsinline muted src="data:video/mp4;base64,AAAAHGZ0eXBtcDQyAAAAAG1wNDJpc29tAAAAE2ZyZWUAAAAlbWRhdGEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAADBtZGloAAAAACQAAAAAc291bQAAAAAAAAAAAAAAAFhBVkMwAAAAAAAAAAAAAAAA"></video>
 
   <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('Service Worker registered'))
+          .catch(err => console.log('Service Worker registration failed', err));
+      });
+    }
+  </script>
 </body>
 </html>
