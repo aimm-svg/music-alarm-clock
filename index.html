@@ -5,188 +5,137 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Music Alarm Clock - 音楽目覚まし時計</title>
-  <meta name="description" content="iOSで動作する、美しいデザインの音楽目覚まし時計アプリ。お気に入りの音楽で曜日指定・スヌーズ対応のアラームを設定できます。">
+  <title>Music Alarm Clock</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <!-- Google Fonts: Outfit for general, Orbitron for Digital Clock -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Outfit:wght@300;400;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="theme-amber">
-  <!-- ナイトモード用の黒オーバーレイ -->
   <div id="dimmer-overlay" class="dimmer-overlay"></div>
 
   <div class="app-container">
-    <!-- ヘッダー / 操作ガイド -->
     <header class="app-header">
       <h1>Music Alarm</h1>
-      <!-- iOS向けの自動スリープ防止＆音声アクティブ化ボタン -->
       <button id="activate-btn" class="activate-btn">
         <span class="pulse-icon"></span>
-        <span>アラームを有効化 (スリープ防止)</span>
+        <span>アラームを有効化</span>
       </button>
       <div id="activation-status" class="activation-status hide">
-        <span>✓ アラーム待機中 (常時点灯モード)</span>
+        <span>✓ 待機中 (常時点灯)</span>
       </div>
     </header>
 
-    <!-- メイン表示：デジタル時計 -->
     <main class="main-display">
-      <div class="clock-card">
-        <div id="date-display" class="date-text">2026年7月2日 (木)</div>
-        <div id="clock-display" class="clock-text">12:34<span class="seconds-text">:56</span></div>
-        <div id="next-alarm-info" class="next-alarm-info">
-          <span class="alarm-icon">⏰</span> 次のアラーム: 設定なし
-        </div>
+      <div class="clock-card" id="clock-card">
+        <div id="date-display" class="date-text"></div>
+        <div id="clock-display" class="clock-text">00:00<span class="seconds-text">:00</span></div>
+        <div id="next-alarm-info" class="next-alarm-info">⏰ 次のアラーム: 設定なし</div>
+        <button id="btn-enter-fullscreen" class="btn-fullscreen-toggle">全画面表示</button>
       </div>
     </main>
 
-    <!-- コントロールセクション -->
     <section class="controls-section">
-      <!-- タブ切り替えボタン -->
       <div class="tabs">
-        <button class="tab-btn active" data-tab="settings">⏰ アラーム設定</button>
-        <button class="tab-btn" data-tab="playlist">🎵 プレイリスト</button>
-        <button class="tab-btn" data-tab="display">🎨 ディスプレイ</button>
+        <button class="tab-btn active" data-tab="settings">⏰ 設定</button>
+        <button class="tab-btn" data-tab="playlist">🎵 音楽</button>
+        <button class="tab-btn" data-tab="display">🎨 表示</button>
       </div>
 
-      <!-- タブコンテンツ: アラーム設定 -->
       <div id="tab-settings" class="tab-content active">
         <div class="card">
-          <h2>新規アラーム追加</h2>
+          <h2>アラーム追加</h2>
           <form id="alarm-form">
             <div class="form-row">
-              <div class="form-group time-input-group">
-                <label for="alarm-time">時刻</label>
-                <input type="time" id="alarm-time" required value="07:00">
-              </div>
-              <div class="form-group snooze-input-group">
-                <label for="alarm-snooze">スヌーズ</label>
-                <select id="alarm-snooze">
-                  <option value="0">なし</option>
-                  <option value="5" selected>5分</option>
-                  <option value="10">10分</option>
-                  <option value="15">15分</option>
-                  <option value="20">20分</option>
-                </select>
-              </div>
+              <input type="time" id="alarm-time" required value="07:00">
+              <select id="alarm-snooze">
+                <option value="0">スヌーズなし</option>
+                <option value="5" selected>5分</option>
+                <option value="10">10分</option>
+              </select>
             </div>
-
-            <div class="form-group">
-              <label>曜日指定 (複数選択可)</label>
-              <div class="weekdays-select">
-                <label class="weekday-checkbox"><input type="checkbox" value="1"><span>月</span></label>
-                <label class="weekday-checkbox"><input type="checkbox" value="2"><span>火</span></label>
-                <label class="weekday-checkbox"><input type="checkbox" value="3"><span>水</span></label>
-                <label class="weekday-checkbox"><input type="checkbox" value="4"><span>木</span></label>
-                <label class="weekday-checkbox"><input type="checkbox" value="5"><span>金</span></label>
-                <label class="weekday-checkbox"><input type="checkbox" value="6"><span>土</span></label>
-                <label class="weekday-checkbox"><input type="checkbox" value="0"><span>日</span></label>
-              </div>
+            <div class="weekdays-select">
+              <label class="weekday-checkbox"><input type="checkbox" value="1"><span>月</span></label>
+              <label class="weekday-checkbox"><input type="checkbox" value="2"><span>火</span></label>
+              <label class="weekday-checkbox"><input type="checkbox" value="3"><span>水</span></label>
+              <label class="weekday-checkbox"><input type="checkbox" value="4"><span>木</span></label>
+              <label class="weekday-checkbox"><input type="checkbox" value="5"><span>金</span></label>
+              <label class="weekday-checkbox"><input type="checkbox" value="6"><span>土</span></label>
+              <label class="weekday-checkbox"><input type="checkbox" value="0"><span>日</span></label>
             </div>
-
-            <button type="submit" class="btn btn-primary">アラームを保存</button>
+            <button type="submit" class="btn btn-primary margin-top-sm">保存</button>
           </form>
         </div>
-
         <div class="card margin-top">
-          <h2>設定中のアラーム</h2>
-          <ul id="alarm-list" class="alarm-list">
-            <!-- 動的に追加されます -->
-            <li class="empty-list-msg">アラームが設定されていません。</li>
-          </ul>
+          <ul id="alarm-list" class="alarm-list"></ul>
         </div>
       </div>
 
-      <!-- タブコンテンツ: プレイリスト -->
       <div id="tab-playlist" class="tab-content">
         <div class="card">
-          <h2>音楽ファイルの登録</h2>
-          <p class="description">
-            アラーム音に使用するお気に入りの曲（MP3等）を追加してください。データはブラウザ内に保存されます。
-          </p>
-          <div class="file-upload-area">
-            <label for="music-files-input" class="file-label">
-              <span class="upload-icon">📥</span>
-              <span>音楽ファイルを選択</span>
-              <span class="file-types">(.mp3, .wav, .m4a など)</span>
-            </label>
+          <label for="music-files-input" class="file-upload-area">
+            <span class="upload-icon">📥</span>
+            <span>音楽を選択</span>
+            <!-- accept属性を強化 -->
             <input type="file" id="music-files-input" multiple accept=".mp3,.m4a,.wav,.aac,.ogg,audio/*" class="hide">
-          </div>
-          
-          <div class="playlist-controls margin-top-sm">
-            <label for="play-mode">再生モード:</label>
-            <select id="play-mode" class="select-sm">
+          </label>
+          <div class="margin-top-sm">
+            <select id="play-mode" class="select-full">
               <option value="shuffle" selected>シャッフル再生</option>
               <option value="sequence">固定順再生</option>
             </select>
           </div>
         </div>
-
         <div class="card margin-top">
-          <h2>登録済みの曲 (<span id="playlist-count">0</span>)</h2>
-          <ul id="songs-list" class="songs-list">
-            <!-- 動的に追加されます -->
-            <li class="empty-list-msg">曲が登録されていません。上のボタンから追加してください。</li>
-          </ul>
+          <ul id="songs-list" class="songs-list"></ul>
         </div>
       </div>
 
-      <!-- タブコンテンツ: ディスプレイ -->
       <div id="tab-display" class="tab-content">
         <div class="card">
-          <h2>テーマカラーの選択</h2>
-          <p class="description">夜でも目に優しい、淡い輝きのカラーテーマです。</p>
+          <h2>時計フォント</h2>
+          <select id="font-selector" class="select-full">
+            <option value="var(--font-clock)">Digital (Orbitron)</option>
+            <option value="var(--font-main)">Modern (Outfit)</option>
+            <option value="var(--font-retro)">Retro (Courier)</option>
+          </select>
+        </div>
+        <div class="card margin-top">
+          <h2>テーマ</h2>
           <div class="theme-selector">
-            <button class="theme-btn btn-amber active" data-theme="amber" title="アンバー"></button>
-            <button class="theme-btn btn-mint" data-theme="mint" title="ミント"></button>
-            <button class="theme-btn btn-lavender" data-theme="lavender" title="ラベンダー"></button>
-            <button class="theme-btn btn-rose" data-theme="rose" title="ローズ"></button>
-            <button class="theme-btn btn-blue" data-theme="blue" title="ソフトブルー"></button>
+            <button class="theme-btn btn-amber active" data-theme="amber"></button>
+            <button class="theme-btn btn-mint" data-theme="mint"></button>
+            <button class="theme-btn btn-lavender" data-theme="lavender"></button>
+            <button class="theme-btn btn-rose" data-theme="rose"></button>
+            <button class="theme-btn btn-blue" data-theme="blue"></button>
           </div>
         </div>
-
         <div class="card margin-top">
-          <h2>画面の明るさ（疑似減光）</h2>
-          <p class="description">夜間のまぶしさを防ぐために、画面全体の明るさを下げます。</p>
-          <div class="brightness-slider-container">
-            <span class="slider-icon">🔆</span>
-            <input type="range" id="brightness-slider" min="0" max="90" value="0">
-            <span class="slider-icon">🌙</span>
-          </div>
+          <h2>明るさ</h2>
+          <input type="range" id="brightness-slider" min="0" max="90" value="0" style="width:100%">
         </div>
       </div>
     </section>
   </div>
 
-  <!-- アラーム鳴動時オーバーレイ -->
   <div id="alarm-ringing-overlay" class="alarm-ringing-overlay hide">
     <div class="ringing-card">
       <div class="ringing-bell">🔔</div>
-      <h2 class="ringing-title">アラーム鳴動中!</h2>
-      <div id="ringing-song-title" class="ringing-song-title">再生中: 登録された曲</div>
-      
+      <h2 class="ringing-title">起床時間です！</h2>
+      <div id="ringing-song-title" class="ringing-song-title"></div>
       <div class="ringing-actions">
         <button id="snooze-btn" class="btn btn-secondary btn-lg">スヌーズ</button>
-        <button id="dismiss-btn" class="btn btn-primary btn-lg btn-danger">アラーム停止</button>
+        <button id="dismiss-btn" class="btn btn-primary btn-lg btn-danger">停止</button>
       </div>
     </div>
   </div>
 
-  <!-- iOSスリープ防止用のダミービデオ要素 (インラインで非表示再生) -->
   <video id="dummy-video" class="hide" loop playsinline muted src="data:video/mp4;base64,AAAAHGZ0eXBtcDQyAAAAAG1wNDJpc29tAAAAE2ZyZWUAAAAlbWRhdGEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAADBtZGloAAAAACQAAAAAc291bQAAAAAAAAAAAAAAAFhBVkMwAAAAAAAAAAAAAAAA"></video>
 
   <script src="app.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('Service Worker registered'))
-          .catch(err => console.log('Service Worker registration failed', err));
-      });
+      navigator.serviceWorker.register('./sw.js?v=5').then(reg => console.log('SW OK'));
     }
   </script>
 </body>
