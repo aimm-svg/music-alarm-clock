@@ -1,0 +1,21 @@
+{
+  "short_name": "音楽目覚まし",
+  "name": "音楽目覚まし時計 PWA",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "index.html",
+  "background_color": "#121212",
+  "theme_color": "#ffb74d",
+  "display": "standalone",
+  "orientation": "portrait"
+}
