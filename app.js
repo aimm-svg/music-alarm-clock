@@ -490,3 +490,35 @@ function registerEventListeners() {
   DOM.dismissBtn.addEventListener('click', dismissCurrentAlarm);
   DOM.playMode.addEventListener('change', (e) => localStorage.setItem('mac_playMode', e.target.value));
 }
+  // 全画面表示ボタン
+  const fullscreenBtn = document.getElementById('btn-enter-fullscreen');
+  if (fullscreenBtn) {
+    fullscreenBtn.addEventListener('click', () => {
+      document.body.classList.add('fullscreen-active');
+    });
+  }
+
+  // 時計をタップして全画面解除
+  DOM.clockDisplay.addEventListener('click', () => {
+    if (document.body.classList.contains('fullscreen-active')) {
+      document.body.classList.remove('fullscreen-active');
+    }
+  });
+
+  // フォント切り替え
+  const fontSelector = document.getElementById('font-selector');
+  if (fontSelector) {
+    fontSelector.addEventListener('change', (e) => {
+      const selectedFont = e.target.value;
+      DOM.clockDisplay.style.fontFamily = selectedFont;
+      localStorage.setItem('mac_font', selectedFont);
+    });
+    
+    // 初期読み込み時の適用
+    const savedFont = localStorage.getItem('mac_font');
+    if (savedFont) {
+      fontSelector.value = savedFont;
+      DOM.clockDisplay.style.fontFamily = savedFont;
+    }
+  }
+}
