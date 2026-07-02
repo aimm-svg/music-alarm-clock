@@ -1,4 +1,4 @@
-const CACHE_NAME = 'music-alarm-v1';
+const CACHE_NAME = 'music-alarm-v2';
 const ASSETS = [
   './',
   './index.html',

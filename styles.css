@@ -65,20 +65,6 @@ body {
   transition: background-color 0.5s ease;
 }
 
-/* ナイトモード用の黒いオーバーレイ (最前面だがUI操作を妨げない) */
-.dimmer-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0);
-  z-index: 999; /* アラーム鳴動画面の下、時計の上に配置 */
-  pointer-events: none; /* 下の要素をクリック可能に */
-  transition: background-color 0.3s ease;
-}
-
-/* --- コンテナとレイアウト --- */
 .app-container {
   max-width: 600px;
   margin: 0 auto;
@@ -87,8 +73,22 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  z-index: 10;
+  /* z-indexを10から1000に変更してオーバーレイより上にする */
+  z-index: 1000; 
   position: relative;
+}
+
+/* 調光オーバーレイのz-indexを少し下げる */
+.dimmer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0);
+  z-index: 999; 
+  pointer-events: none;
+  transition: background-color 0.3s ease;
 }
 
 /* --- ヘッダー --- */

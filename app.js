@@ -1,65 +1,49 @@
 /**
- * Music Alarm Clock - Integrated Core Application Logic
+ * Music Alarm Clock - iPad Compatibility Fix
  */
 
-// --- 状態管理 ---
 const state = {
-  alarms: [],
-  playlist: [],
-  currentAlarm: null, // 現在鳴動中のアラーム
-  currentSnoozeCount: 0, // 現在の鳴動に関するスヌーズ回数
-  snoozeAlarms: [], // スヌーズ中のアラーム { time: Date, parentId: id, snoozeMinutes: mins, count: number }
-  isPlaying: false,
-  currentSongIndex: -1,
-  db: null,
-  wakeLock: null,
-  isActive: false, // iOS向けのスリープ防止・音声有効化状態
-  theme: 'amber',
-  dimmerOpacity: 0,
-  audioContext: null,
-  activeAudio: null, // 再生中のオーディオオブジェクト
-  previewAudio: null, // 試聴中のオーディオオブジェクト
-  alarmCheckerInterval: null
+  alarms: [], playlist: [], currentAlarm: null, currentSnoozeCount: 0,
+  snoozeAlarms: [], isPlaying: false, currentSongIndex: -1,
+  db: null, wakeLock: null, isActive: false, theme: 'amber',
+  dimmerOpacity: 0, audioContext: null, activeAudio: null,
+  previewAudio: null, alarmCheckerInterval: null
 };
 
 const MAX_SNOOZE_COUNT = 3;
 const WEEKDAYS_SHORT = ['日', '月', '火', '水', '木', '金', '土'];
 
-// --- DOM 要素の取得 ---
-const DOM = {
-  dateDisplay: document.getElementById('date-display'),
-  clockDisplay: document.getElementById('clock-display'),
-  nextAlarmInfo: document.getElementById('next-alarm-info'),
-  activateBtn: document.getElementById('activate-btn'),
-  activationStatus: document.getElementById('activation-status'),
-  
-  tabBtns: document.querySelectorAll('.tab-btn'),
-  tabContents: document.querySelectorAll('.tab-content'),
-  
-  alarmForm: document.getElementById('alarm-form'),
-  alarmTime: document.getElementById('alarm-time'),
-  alarmSnooze: document.getElementById('alarm-snooze'),
-  alarmList: document.getElementById('alarm-list'),
-  
-  musicFilesInput: document.getElementById('music-files-input'),
-  playMode: document.getElementById('play-mode'),
-  songsList: document.getElementById('songs-list'),
-  playlistCount: document.getElementById('playlist-count'),
-  
-  themeBtns: document.querySelectorAll('.theme-btn'),
-  brightnessSlider: document.getElementById('brightness-slider'),
-  dimmerOverlay: document.getElementById('dimmer-overlay'),
-  
-  alarmRingingOverlay: document.getElementById('alarm-ringing-overlay'),
-  ringingSongTitle: document.getElementById('ringing-song-title'),
-  snoozeBtn: document.getElementById('snooze-btn'),
-  dismissBtn: document.getElementById('dismiss-btn'),
-  
-  dummyVideo: document.getElementById('dummy-video')
-};
+// DOM要素を格納する変数（初期化時に代入）
+let DOM = {};
 
-// --- 初期化処理 ---
 document.addEventListener('DOMContentLoaded', async () => {
+  // DOM要素の再取得
+  DOM = {
+    dateDisplay: document.getElementById('date-display'),
+    clockDisplay: document.getElementById('clock-display'),
+    nextAlarmInfo: document.getElementById('next-alarm-info'),
+    activateBtn: document.getElementById('activate-btn'),
+    activationStatus: document.getElementById('activation-status'),
+    tabBtns: document.querySelectorAll('.tab-btn'),
+    tabContents: document.querySelectorAll('.tab-content'),
+    alarmForm: document.getElementById('alarm-form'),
+    alarmTime: document.getElementById('alarm-time'),
+    alarmSnooze: document.getElementById('alarm-snooze'),
+    alarmList: document.getElementById('alarm-list'),
+    musicFilesInput: document.getElementById('music-files-input'),
+    playMode: document.getElementById('play-mode'),
+    songsList: document.getElementById('songs-list'),
+    playlistCount: document.getElementById('playlist-count'),
+    themeBtns: document.querySelectorAll('.theme-btn'),
+    brightnessSlider: document.getElementById('brightness-slider'),
+    dimmerOverlay: document.getElementById('dimmer-overlay'),
+    alarmRingingOverlay: document.getElementById('alarm-ringing-overlay'),
+    ringingSongTitle: document.getElementById('ringing-song-title'),
+    snoozeBtn: document.getElementById('snooze-btn'),
+    dismissBtn: document.getElementById('dismiss-btn'),
+    dummyVideo: document.getElementById('dummy-video')
+  };
+
   loadSettings();
   await initDB();
   await loadPlaylist();
@@ -456,50 +440,53 @@ async function requestWakeLock() {
 
 // --- イベントリスナー登録 ---
 function registerEventListeners() {
-  DOM.activateBtn.onclick = activateApp;
+  // すべて addEventListener ('click', ...) に変更
+  DOM.activateBtn.addEventListener('click', activateApp);
   
   DOM.tabBtns.forEach(btn => {
-    btn.onclick = () => {
+    btn.addEventListener('click', () => {
+      const tabId = btn.getAttribute('data-tab');
       DOM.tabBtns.forEach(b => b.classList.remove('active'));
       DOM.tabContents.forEach(c => c.classList.remove('active'));
       btn.classList.add('active');
-      document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
-    };
+      const targetContent = document.getElementById(`tab-${tabId}`);
+      if (targetContent) targetContent.classList.add('active');
+    });
   });
 
-  DOM.alarmForm.onsubmit = (e) => {
+  DOM.alarmForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const checkedDays = Array.from(DOM.alarmForm.querySelectorAll('.weekdays-select input:checked')).map(i => parseInt(i.value));
     state.alarms.push({ id: Date.now(), time: DOM.alarmTime.value, snooze: parseInt(DOM.alarmSnooze.value), days: checkedDays, active: true });
     saveAlarms();
     DOM.alarmForm.querySelectorAll('input[type="checkbox"]').forEach(i => i.checked = false);
-    alert('追加しました');
-  };
+    alert('アラームを保存しました');
+  });
 
-  DOM.musicFilesInput.onchange = async (e) => {
+  DOM.musicFilesInput.addEventListener('change', async (e) => {
     for (const file of e.target.files) { await addSongToDB(file); }
-    alert('登録しました');
     await loadPlaylist();
+    alert('曲を登録しました');
     DOM.musicFilesInput.value = '';
-  };
+  });
 
   DOM.themeBtns.forEach(btn => {
-    btn.onclick = () => {
+    btn.addEventListener('click', () => {
       state.theme = btn.dataset.theme;
       DOM.themeBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       document.body.className = `theme-${state.theme}`;
       localStorage.setItem('mac_theme', state.theme);
-    };
+    });
   });
 
-  DOM.brightnessSlider.oninput = (e) => {
+  DOM.brightnessSlider.addEventListener('input', (e) => {
     state.dimmerOpacity = e.target.value;
     updateDimmer();
-  };
-  DOM.brightnessSlider.onchange = (e) => localStorage.setItem('mac_dimmer', e.target.value);
+  });
+  DOM.brightnessSlider.addEventListener('change', (e) => localStorage.setItem('mac_dimmer', e.target.value));
 
-  DOM.snoozeBtn.onclick = snoozeCurrentAlarm;
-  DOM.dismissBtn.onclick = dismissCurrentAlarm;
-  DOM.playMode.onchange = (e) => localStorage.setItem('mac_playMode', e.target.value);
+  DOM.snoozeBtn.addEventListener('click', snoozeCurrentAlarm);
+  DOM.dismissBtn.addEventListener('click', dismissCurrentAlarm);
+  DOM.playMode.addEventListener('change', (e) => localStorage.setItem('mac_playMode', e.target.value));
 }
