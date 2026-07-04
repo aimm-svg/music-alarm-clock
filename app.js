@@ -1,5 +1,5 @@
 /**
- * LCD Music Alarm - iPad Fixed Version
+ * Music Alarm Clock - Resilient iPad Version
  */
 
 const state = {
@@ -7,18 +7,18 @@ const state = {
   currentAlarm: null, currentSnoozeCount: 0,
   db: null, wakeLock: null, isActive: false,
   isPlaying: false, currentSongIndex: -1,
-  audioContext: null, activeAudio: null, volume: 0.8,
-  heartbeatInterval: null
+  audioContext: null, activeAudio: null, volume: 0.8
 };
 
 const DOM = {};
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // DOM取得
   const ids = [
     'date-display', 'clock-display', 'next-alarm-info', 'activate-btn', 'activation-status',
     'alarm-form', 'alarm-time', 'alarm-snooze', 'alarm-list', 'music-files-input',
     'play-mode', 'songs-list', 'brightness-slider', 'dimmer-overlay', 'alarm-ringing-overlay',
-    'ringing-song-title', 'snooze-btn', 'dismiss-btn', 'dummy-video', 'volume-slider', 'test-audio-btn'
+    'ringing-song-title', 'snooze-btn', 'dismiss-btn', 'dummy-video', 'volume-slider', 'btn-enter-fullscreen'
   ];
   ids.forEach(id => DOM[id] = document.getElementById(id));
   DOM.tabBtns = document.querySelectorAll('.tab-btn');
@@ -37,49 +37,53 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function initDB() {
   return new Promise(res => {
-    const req = indexedDB.open('music_db_final_v2', 1);
+    const req = indexedDB.open('music_db_final', 1);
     req.onupgradeneeded = e => e.target.result.createObjectStore('songs', { keyPath: 'id', autoIncrement: true });
     req.onsuccess = e => { state.db = e.target.result; res(); };
   });
 }
 
-// --- iPadの音声とスリープのロックを解除する最重要関数 ---
-async function startApp() {
-  try {
-    // 1. AudioContextの初期化
-    state.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    await state.audioContext.resume();
+// 有効化処理：エラーが出ても無視して動作を続ける
+async function unlockApp() {
+  state.isActive = true;
 
-    // 2. 音声再生の許可（無音の短い音を流す）
+  // 1. AudioContextの再開
+  try {
+    if (!state.audioContext) state.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    await state.audioContext.resume();
+  } catch(e) {}
+
+  // 2. 音声許可の取得（短い無音の再生）
+  try {
     const silent = new Audio();
     silent.src = "data:audio/wav;base64,UklGRigAAABXQVZFRm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==";
     await silent.play();
+  } catch(e) {}
 
-    // 3. スリープ防止ビデオの開始
+  // 3. スリープ防止ビデオ
+  try {
     await DOM['dummy-video'].play();
+  } catch(e) {}
 
-    // 4. Wake Lock
-    if ('wakeLock' in navigator) {
-      try { state.wakeLock = await navigator.wakeLock.request('screen'); } catch(e){}
-    }
-
-    // 5. 音声エンジンの死守（ハートビート）
-    // 30秒に一度、無音の音を再生し続け、iPadに「まだ音声を使っている」と思わせる
-    if (state.heartbeatInterval) clearInterval(state.heartbeatInterval);
-    state.heartbeatInterval = setInterval(() => {
-      const heartbeat = new Audio();
-      heartbeat.src = "data:audio/wav;base64,UklGRigAAABXQVZFRm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==";
-      heartbeat.volume = 0.01;
-      heartbeat.play().catch(()=>{});
-    }, 30000);
-
-    state.isActive = true;
-    DOM['activate-btn'].classList.add('hide');
-    DOM['activation-status'].classList.remove('hide');
-    alert("有効化完了：このまま画面を閉じずに置いてください。");
-  } catch(err) {
-    alert("有効化に失敗しました。もう一度タップしてください。");
+  // 4. Wake Lock (一部のiPadでは失敗することがあるので、失敗してもアラートは出さない)
+  if ('wakeLock' in navigator) {
+    try {
+      state.wakeLock = await navigator.wakeLock.request('screen');
+    } catch(e) {}
   }
+
+  // 5. 音声エンジンがスリープするのを防ぐ「心拍音」の開始
+  setInterval(() => {
+    if (!state.isActive) return;
+    const heartbeat = new Audio();
+    heartbeat.src = "data:audio/wav;base64,UklGRigAAABXQVZFRm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==";
+    heartbeat.volume = 0.01;
+    heartbeat.play().catch(()=>{});
+  }, 30000); // 30秒ごとにこっそり音を出す
+
+  DOM['activate-btn'].classList.add('hide');
+  DOM['activation-status'].classList.remove('hide');
+  alert("アラームを有効化しました。アプリを閉じずに置いてください。");
 }
 
 function tick() {
@@ -87,29 +91,29 @@ function tick() {
   const h = String(now.getHours()).padStart(2, '0');
   const m = String(now.getMinutes()).padStart(2, '0');
   const s = String(now.getSeconds()).padStart(2, '0');
-  const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  const day = ['日','月','火','水','木','金','土'][now.getDay()];
   
-  DOM['date-display'].textContent = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${days[now.getDay()]}`;
-  DOM['clock-display'].innerHTML = `${h}:${m}<span class="lcd-sec-text">${s}</span>`;
+  DOM['date-display'].textContent = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} (${day})`;
+  DOM['clock-display'].innerHTML = `${h}:${m}<span class="sec-text">:${s}</span>`;
 
   if (now.getSeconds() === 0) {
     const timeStr = `${h}:${m}`;
     const snz = state.snoozeAlarms.find(sa => sa.time.getHours() === now.getHours() && sa.time.getMinutes() === now.getMinutes());
     if (snz) {
-      fireAlarm(state.alarms.find(a => a.id === snz.parentId), snz.count);
+      triggerAlarm(state.alarms.find(a => a.id === snz.parentId), snz.count);
       state.snoozeAlarms = state.snoozeAlarms.filter(sa => sa !== snz);
     } else {
       state.alarms.forEach(a => {
         if (a.active && a.time === timeStr && (a.days.length === 0 || a.days.includes(now.getDay()))) {
           if (a.days.length === 0) { a.active = false; saveAlarms(); }
-          fireAlarm(a, 0);
+          triggerAlarm(a, 0);
         }
       });
     }
   }
 }
 
-function fireAlarm(alarm, count) {
+function triggerAlarm(alarm, count) {
   state.currentAlarm = alarm;
   state.currentSnoozeCount = count;
   DOM['alarm-ringing-overlay'].classList.remove('hide');
@@ -140,6 +144,7 @@ function playSong(idx) {
   a.volume = state.volume;
   state.activeAudio = a;
   a.play().catch(playBeep);
+  
   a.onended = () => {
     state.currentSongIndex = (DOM['play-mode'].value === 'shuffle') ? Math.floor(Math.random() * state.playlist.length) : (idx + 1) % state.playlist.length;
     playSong(state.currentSongIndex);
@@ -161,11 +166,7 @@ function playBeep() {
 }
 
 function registerEvents() {
-  DOM['activate-btn'].onclick = startApp;
-  DOM['test-audio-btn'].onclick = () => {
-    const t = new Audio("data:audio/wav;base64,UklGRigAAABXQVZFRm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==");
-    t.play().then(()=>alert("音が鳴る状態です")).catch(()=>alert("有効化ボタンを先に押してください"));
-  };
+  DOM['activate-btn'].onclick = unlockApp;
   DOM['music-files-input'].onchange = async e => {
     for (const f of e.target.files) {
       const tx = state.db.transaction('songs', 'readwrite');
@@ -187,9 +188,9 @@ function registerEvents() {
     const days = Array.from(DOM['alarm-form'].querySelectorAll('input:checked')).map(i => Number(i.value));
     state.alarms.push({ id: Date.now(), time: DOM['alarm-time'].value, snooze: Number(DOM['alarm-snooze'].value), days, active: true });
     saveAlarms();
-    alert("保存しました");
+    alert("アラームを保存しました");
   };
-  document.getElementById('btn-enter-fullscreen').onclick = () => document.body.classList.add('fullscreen-active');
+  DOM['btn-enter-fullscreen'].onclick = () => document.body.classList.add('fullscreen-active');
   DOM['clock-display'].onclick = () => document.body.classList.remove('fullscreen-active');
   DOM['brightness-slider'].oninput = e => {
     DOM['dimmer-overlay'].style.backgroundColor = `rgba(0,0,0,${e.target.value/100})`;
@@ -217,13 +218,13 @@ function stopAll() {
 }
 
 function saveAlarms() {
-  localStorage.setItem('mac_alarms_v2', JSON.stringify(state.alarms));
+  localStorage.setItem('mac_alarms_v3', JSON.stringify(state.alarms));
   renderAlarms();
-  updateInfo();
+  updateNextInfo();
 }
 
-function updateInfo() {
-  DOM['next-alarm-info'].textContent = state.alarms.some(a=>a.active) ? "NEXT: SET" : "NEXT: NONE";
+function updateNextInfo() {
+  DOM['next-alarm-info'].textContent = state.alarms.some(a=>a.active) ? "次のアラーム: セット済み" : "次のアラーム: 未設定";
 }
 
 function renderAlarms() {
@@ -241,7 +242,7 @@ async function loadPlaylist() {
   const songs = await new Promise(res => store.getAll().onsuccess = e => res(e.target.result));
   state.playlist = songs;
   DOM['songs-list'].innerHTML = songs.map(s => `
-    <li class="song-item"><span>${s.name}</span><button onclick="deleteSong(${s.id})" style="color:#ff4444; background:none; border:none">DEL</button></li>
+    <li class="song-item"><span>${s.name}</span><button onclick="deleteSong(${s.id})" style="color:#ff4444; background:none; border:none">削除</button></li>
   `).join('');
 }
 
@@ -254,9 +255,9 @@ function loadSettings() {
 }
 
 function loadAlarms() {
-  state.alarms = JSON.parse(localStorage.getItem('mac_alarms_v2') || '[]');
+  state.alarms = JSON.parse(localStorage.getItem('mac_alarms_v3') || '[]');
   renderAlarms();
-  updateInfo();
+  updateNextInfo();
 }
 
 window.delAlarm = id => { state.alarms = state.alarms.filter(a => a.id !== id); saveAlarms(); };

@@ -1,109 +1,77 @@
 :root {
   --font-main: 'Outfit', sans-serif;
-  --font-lcd: 'DSEG7 Classic', 'DSEG7-Classic', sans-serif;
-  --bg-color: #000;
-  /* 2枚目画像のようなオレンジ液晶を再現 */
-  --lcd-bg-color: #e67e22; 
-  --lcd-text-color: #1a1a1a;
+  --font-clock: 'Orbitron', 'Courier New', Courier, monospace; /* 等幅フォントを指定 */
+  --bg-color: #0b0c10;
+  --card-bg: rgba(30, 30, 35, 0.8);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --text-main: #e0e6ed;
+  --text-muted: #8892b0;
   --accent-color: #ffb74d;
+  --accent-glow: rgba(255, 183, 77, 0.4);
 }
 
-body.theme-mint { --accent-color: #81c784; }
-body.theme-lavender { --accent-color: #b39ddb; }
-body.theme-rose { --accent-color: #f48fb1; }
-body.theme-blue { --accent-color: #90caf9; }
+body.theme-mint { --accent-color: #81c784; --accent-glow: rgba(129, 199, 132, 0.4); }
+body.theme-lavender { --accent-color: #b39ddb; --accent-glow: rgba(179, 157, 219, 0.4); }
+body.theme-rose { --accent-color: #f48fb1; --accent-glow: rgba(244, 143, 177, 0.4); }
+body.theme-blue { --accent-color: #90caf9; --accent-glow: rgba(144, 202, 249, 0.4); }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body { width: 100%; height: 100%; background-color: var(--bg-color); color: #fff; font-family: var(--font-main); overflow: hidden; }
+html, body { width: 100%; height: 100%; font-family: var(--font-main); background-color: var(--bg-color); color: var(--text-main); overflow: hidden; }
 
-.app-container { max-width: 600px; margin: 0 auto; padding: 15px; height: 100%; display: flex; flex-direction: column; position: relative; z-index: 10; }
+.app-container { max-width: 600px; margin: 0 auto; padding: 15px; height: 100%; display: flex; flex-direction: column; position: relative; z-index: 100; }
 
 .dimmer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0); z-index: 9999; pointer-events: none; }
 
-/* 液晶パネルデザイン（2枚目画像を再現） */
-.lcd-panel {
-  background-color: var(--lcd-bg-color);
-  border-radius: 10px;
-  padding: 25px 15px;
-  text-align: center;
-  border: 4px solid #333;
-  box-shadow: 0 0 20px rgba(0,0,0,0.5);
-  margin-bottom: 20px;
-}
+/* 時計カード */
+.clock-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 30px; padding: 40px 10px; text-align: center; margin-bottom: 20px; }
+.date-text { font-size: 1.2rem; color: var(--text-muted); font-weight: bold; margin-bottom: 10px; }
+.clock-text { font-family: var(--font-clock); font-size: 5rem; color: var(--accent-color); text-shadow: 0 0 20px var(--accent-glow); font-variant-numeric: tabular-nums; }
+.sec-text { font-size: 2.5rem; opacity: 0.7; }
+.next-alarm-info { font-size: 0.9rem; color: var(--text-muted); margin: 15px 0; }
 
-.lcd-date {
-  font-family: var(--font-lcd) !important;
-  font-size: 1.4rem;
-  color: var(--lcd-text-color);
-  margin-bottom: 10px;
-  font-weight: normal;
-}
-
-.lcd-main {
-  position: relative;
-  display: inline-block;
-  margin: 5px 0;
-}
-
-.lcd-bg {
-  position: absolute;
-  top: 0; left: 0; width: 100%;
-  color: rgba(0, 0, 0, 0.05);
-  font-family: var(--font-lcd) !important;
-  font-size: 5.5rem;
-  z-index: 1;
-}
-
-.lcd-text {
-  position: relative;
-  font-family: var(--font-lcd) !important;
-  font-size: 5.5rem;
-  color: var(--lcd-text-color);
-  z-index: 2;
-  font-variant-numeric: tabular-nums;
-}
-
-.lcd-sec-bg { font-size: 2.2rem; margin-left: 4px; }
-.lcd-sec-text { font-size: 2.2rem; margin-left: 4px; }
-
-.lcd-info {
-  font-family: var(--font-lcd) !important;
-  font-size: 1rem;
-  color: var(--lcd-text-color);
-  margin-top: 10px;
-}
-
-/* 全画面モード */
+/* 全画面 */
 body.fullscreen-active .app-header, body.fullscreen-active .controls-section { display: none !important; }
-body.fullscreen-active .app-container { height: 100vh; justify-content: center; max-width: 100%; padding: 0; }
-body.fullscreen-active .lcd-panel { border: none; width: 100%; height: 100%; border-radius: 0; display: flex; flex-direction: column; justify-content: center; }
-body.fullscreen-active .lcd-bg, body.fullscreen-active .lcd-text { font-size: 20vw; }
+body.fullscreen-active .app-container { height: 100vh; justify-content: center; }
+body.fullscreen-active .clock-card { border: none; background: transparent; box-shadow: none; width: 100%; }
+body.fullscreen-active .clock-text { font-size: 20vw; }
 
-/* UI */
-.tabs { display: flex; gap: 4px; margin-bottom: 10px; }
-.tab-btn { flex: 1; padding: 10px; background: #222; border: 1px solid #333; color: #777; border-radius: 8px; font-weight: bold; }
-.tab-btn.active { color: var(--accent-color); border-color: var(--accent-color); }
+/* タブ UI */
+.tabs { display: flex; gap: 5px; margin-bottom: 15px; }
+.tab-btn { flex: 1; padding: 12px; border: none; background: rgba(255,255,255,0.05); color: #777; border-radius: 10px; font-weight: bold; cursor: pointer; }
+.tab-btn.active { background: var(--accent-color); color: #000; }
 .tab-content { display: none; }
-.tab-content.active { display: block; height: 38vh; overflow-y: auto; }
+.tab-content.active { display: block; height: 35vh; overflow-y: auto; }
 
-.card { background: #111; border: 1px solid #222; border-radius: 12px; padding: 15px; margin-bottom: 10px; }
-.btn { width: 100%; padding: 14px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; }
+.card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 18px; padding: 15px; margin-bottom: 10px; }
+.btn { width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; }
 .btn-primary { background: var(--accent-color); color: #000; }
-.btn-secondary { background: #333; color: #fff; }
-.btn-fullscreen-toggle { background: #000; color: #fff; border: 1px solid #555; padding: 5px 15px; margin-top: 15px; border-radius: 4px; font-size: 0.8rem; }
+.btn-danger { background: #ff5252; color: #fff; }
+.btn-secondary { background: rgba(255,255,255,0.1); color: #fff; }
+.btn-fullscreen-toggle { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #888; padding: 6px 16px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; }
 
-.activate-btn { background: #000; border: 2px solid var(--accent-color); color: var(--accent-color); padding: 12px; border-radius: 30px; font-weight: bold; width: 100%; }
-
-.hide { display: none !important; }
-input[type="time"], select { width: 100%; padding: 10px; background: #000; color: #fff; border: 1px solid #333; border-radius: 6px; font-size: 1.2rem; }
-.form-row { display: flex; gap: 8px; }
-.weekdays-select { display: flex; justify-content: space-between; margin-top: 10px; }
-.weekday-checkbox input { display: none; }
-.weekday-checkbox span { width: 35px; height: 35px; border: 1px solid #333; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
-.weekday-checkbox input:checked + span { background: var(--accent-color); color: #000; }
+.activate-btn { background: #000; border: 2px solid var(--accent-color); color: var(--accent-color); padding: 15px; border-radius: 30px; font-weight: bold; width: 100%; cursor: pointer; }
 
 .alarm-ringing-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: flex; align-items: center; justify-content: center; }
-.ringing-card { border: 4px solid var(--accent-color); padding: 40px; border-radius: 20px; text-align: center; width: 85%; }
+.ringing-card { border: 2px solid var(--accent-color); padding: 50px; border-radius: 30px; text-align: center; width: 90%; max-width: 400px; }
 
+input[type="time"], select { width: 100%; padding: 12px; border-radius: 10px; background: #000; color: #fff; border: 1px solid #333; font-size: 1.1rem; }
+.form-row { display: flex; gap: 10px; }
+.weekdays-select { display: flex; justify-content: space-between; margin-top: 10px; }
+.weekday-checkbox input { display: none; }
+.weekday-checkbox span { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border-radius: 10px; font-size: 0.8rem; }
+.weekday-checkbox input:checked + span { background: var(--accent-color); color: #000; }
+
+.hide { display: none !important; }
+.margin-top { margin-top: 20px; }
+.margin-top-sm { margin-top: 10px; }
 .songs-list { list-style: none; }
-.song-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #222; }
+.song-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+.theme-selector { display: flex; justify-content: space-around; margin-top: 10px; }
+.theme-btn { width: 40px; height: 40px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; }
+.theme-btn.active { border-color: #fff; }
+.btn-amber { background: #ffb74d; }
+.btn-mint { background: #81c784; }
+.btn-lavender { background: #b39ddb; }
+.btn-rose { background: #f48fb1; }
+.btn-blue { background: #90caf9; }

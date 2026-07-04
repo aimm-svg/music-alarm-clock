@@ -5,44 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>LCD 音楽目覚まし</title>
+  <title>Music Alarm</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
-  
-  <!-- デジタルフォントDSEG7の読み込み（CDNを複数用意して確実に） -->
-  <link rel="stylesheet" href="https://unpkg.com/dseg@2.1.0/css/dseg.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700&display=swap" rel="stylesheet">
-  
+  <!-- 比較的安定して読み込めるOrbitronをフォントに採用 -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="theme-amber">
-  <!-- 調光用（画面を暗くする） -->
   <div id="dimmer-overlay" class="dimmer-overlay"></div>
 
   <div class="app-container">
     <header class="app-header">
       <h1>音楽目覚まし</h1>
-      <!-- このボタンが音と画面維持のすべての鍵です -->
+      <!-- 有効化ボタン：エラーが出ても止まらないように修正 -->
       <button id="activate-btn" class="activate-btn">
-        <span>⚠ 準備：ここをタップして開始</span>
+        <span>アラームを有効化（タップ）</span>
       </button>
       <div id="activation-status" class="activation-status hide">
-        <span>✓ 動作中：画面は消えません</span>
+        <span>✓ 動作中（画面は消えません）</span>
       </div>
     </header>
 
     <main class="main-display">
-      <!-- 液晶パネルデザイン -->
-      <div class="lcd-panel" id="clock-card">
-        <div id="date-display" class="lcd-date">2026-07-04 SAT</div>
-        
-        <div class="lcd-main">
-          <div class="lcd-bg">88:88<span class="lcd-sec-bg">88</span></div>
-          <div id="clock-display" class="lcd-text">00:00<span class="lcd-sec-text">00</span></div>
-        </div>
-
-        <div id="next-alarm-info" class="lcd-info">NEXT: 未設定</div>
-        <button id="btn-enter-fullscreen" class="btn-fullscreen-toggle">全画面表示</button>
+      <div class="clock-card" id="clock-card">
+        <div id="date-display" class="date-text">----/--/-- (--)</div>
+        <div id="clock-display" class="clock-text">00:00<span class="sec-text">:00</span></div>
+        <div id="next-alarm-info" class="next-alarm-info">次のアラーム: 未設定</div>
+        <button id="btn-enter-fullscreen" class="btn-fullscreen-toggle">時計を全画面にする</button>
       </div>
     </main>
 
@@ -53,7 +43,7 @@
         <button class="tab-btn" data-tab="display">表示</button>
       </div>
 
-      <!-- 設定タブ -->
+      <!-- 設定 -->
       <div id="tab-settings" class="tab-content active">
         <div class="card">
           <h3>アラーム追加</h3>
@@ -75,7 +65,7 @@
               <label class="weekday-checkbox"><input type="checkbox" value="6"><span>土</span></label>
               <label class="weekday-checkbox"><input type="checkbox" value="0"><span>日</span></label>
             </div>
-            <button type="submit" class="btn btn-primary">保存</button>
+            <button type="submit" class="btn btn-primary">アラームを保存</button>
           </form>
         </div>
         <div class="card margin-top">
@@ -83,12 +73,12 @@
         </div>
       </div>
 
-      <!-- 音楽タブ -->
+      <!-- 音楽 -->
       <div id="tab-playlist" class="tab-content">
         <div class="card">
           <h3>プレイリスト</h3>
           <label for="music-files-input" class="file-upload-area">
-            <span>曲を追加（ファイルから）</span>
+            <span>音楽ファイルを追加</span>
             <input type="file" id="music-files-input" multiple accept=".mp3,.m4a,.wav,.aac" class="hide">
           </label>
           <div class="margin-top-sm">
@@ -101,14 +91,13 @@
             <label>音量調整</label>
             <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.8" style="width:100%">
           </div>
-          <button id="test-audio-btn" class="btn btn-secondary margin-top-sm">音が出るかテスト</button>
         </div>
         <div class="card margin-top">
           <ul id="songs-list" class="songs-list"></ul>
         </div>
       </div>
 
-      <!-- 表示タブ -->
+      <!-- 表示 -->
       <div id="tab-display" class="tab-content">
         <div class="card">
           <h3>テーマカラー</h3>
@@ -128,20 +117,20 @@
     </section>
   </div>
 
-  <!-- 鳴動画面 -->
+  <!-- 鳴動オーバーレイ -->
   <div id="alarm-ringing-overlay" class="alarm-ringing-overlay hide">
     <div class="ringing-card">
       <div class="ringing-bell">🔔</div>
-      <h2 class="ringing-title">起床時間です</h2>
+      <h2 class="ringing-title">おはようございます</h2>
       <div id="ringing-song-title" class="ringing-song-title"></div>
       <div class="ringing-actions">
         <button id="snooze-btn" class="btn btn-secondary">スヌーズ</button>
-        <button id="dismiss-btn" class="btn btn-primary">停止</button>
+        <button id="dismiss-btn" class="btn btn-primary btn-danger">停止</button>
       </div>
     </div>
   </div>
 
-  <!-- スリープ防止ビデオ（必須） -->
+  <!-- スリープ防止用 -->
   <video id="dummy-video" class="hide" loop playsinline muted src="data:video/mp4;base64,AAAAHGZ0eXBtcDQyAAAAAG1wNDJpc29tAAAAE2ZyZWUAAAAlbWRhdGEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAADBtZGloAAAAACQAAAAAc291bQAAAAAAAAAAAAAAAFhBVkMwAAAAAAAAAAAAAAAA"></video>
 
   <script src="app.js"></script>
