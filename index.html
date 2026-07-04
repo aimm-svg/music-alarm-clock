@@ -5,74 +5,77 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>LCD Music Alarm</title>
+  <title>LCD 音楽目覚まし</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
   
-  <!-- デジタルフォントの読み込みを強化 -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dseg@2.1.0/css/dseg.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+  <!-- デジタルフォントDSEG7の読み込み（CDNを複数用意して確実に） -->
+  <link rel="stylesheet" href="https://unpkg.com/dseg@2.1.0/css/dseg.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="theme-amber">
+  <!-- 調光用（画面を暗くする） -->
   <div id="dimmer-overlay" class="dimmer-overlay"></div>
 
   <div class="app-container">
     <header class="app-header">
-      <h1>Digital Alarm</h1>
+      <h1>音楽目覚まし</h1>
+      <!-- このボタンが音と画面維持のすべての鍵です -->
       <button id="activate-btn" class="activate-btn">
-        <span>⚠ アラームを有効化（タップ）</span>
+        <span>⚠ 準備：ここをタップして開始</span>
       </button>
       <div id="activation-status" class="activation-status hide">
-        <span>✓ 常時点灯・音声有効</span>
+        <span>✓ 動作中：画面は消えません</span>
       </div>
     </header>
 
     <main class="main-display">
-      <!-- 2枚目画像のような液晶パネル風デザイン -->
+      <!-- 液晶パネルデザイン -->
       <div class="lcd-panel" id="clock-card">
         <div id="date-display" class="lcd-date">2026-07-04 SAT</div>
         
         <div class="lcd-main">
           <div class="lcd-bg">88:88<span class="lcd-sec-bg">88</span></div>
-          <div id="clock-display" class="lcd-text">14:26<span class="lcd-sec-text">34</span></div>
+          <div id="clock-display" class="lcd-text">00:00<span class="lcd-sec-text">00</span></div>
         </div>
 
-        <div id="next-alarm-info" class="lcd-info">NEXT: NONE</div>
-        <button id="btn-enter-fullscreen" class="btn-fullscreen-toggle">FULLSCREEN</button>
+        <div id="next-alarm-info" class="lcd-info">NEXT: 未設定</div>
+        <button id="btn-enter-fullscreen" class="btn-fullscreen-toggle">全画面表示</button>
       </div>
     </main>
 
     <section class="controls-section">
       <div class="tabs">
-        <button class="tab-btn active" data-tab="settings">SET</button>
-        <button class="tab-btn" data-tab="playlist">MUSIC</button>
-        <button class="tab-btn" data-tab="display">DISP</button>
+        <button class="tab-btn active" data-tab="settings">設定</button>
+        <button class="tab-btn" data-tab="playlist">音楽</button>
+        <button class="tab-btn" data-tab="display">表示</button>
       </div>
 
+      <!-- 設定タブ -->
       <div id="tab-settings" class="tab-content active">
         <div class="card">
-          <h3>ALARM</h3>
+          <h3>アラーム追加</h3>
           <form id="alarm-form">
             <div class="form-row">
               <input type="time" id="alarm-time" required value="07:00">
               <select id="alarm-snooze">
-                <option value="0">OFF</option>
-                <option value="5" selected>5min</option>
-                <option value="10">10min</option>
+                <option value="0">なし</option>
+                <option value="5" selected>5分</option>
+                <option value="10">10分</option>
               </select>
             </div>
             <div class="weekdays-select">
-              <label class="weekday-checkbox"><input type="checkbox" value="1"><span>M</span></label>
-              <label class="weekday-checkbox"><input type="checkbox" value="2"><span>T</span></label>
-              <label class="weekday-checkbox"><input type="checkbox" value="3"><span>W</span></label>
-              <label class="weekday-checkbox"><input type="checkbox" value="4"><span>T</span></label>
-              <label class="weekday-checkbox"><input type="checkbox" value="5"><span>F</span></label>
-              <label class="weekday-checkbox"><input type="checkbox" value="6"><span>S</span></label>
-              <label class="weekday-checkbox"><input type="checkbox" value="0"><span>S</span></label>
+              <label class="weekday-checkbox"><input type="checkbox" value="1"><span>月</span></label>
+              <label class="weekday-checkbox"><input type="checkbox" value="2"><span>火</span></label>
+              <label class="weekday-checkbox"><input type="checkbox" value="3"><span>水</span></label>
+              <label class="weekday-checkbox"><input type="checkbox" value="4"><span>木</span></label>
+              <label class="weekday-checkbox"><input type="checkbox" value="5"><span>金</span></label>
+              <label class="weekday-checkbox"><input type="checkbox" value="6"><span>土</span></label>
+              <label class="weekday-checkbox"><input type="checkbox" value="0"><span>日</span></label>
             </div>
-            <button type="submit" class="btn btn-primary">SAVE</button>
+            <button type="submit" class="btn btn-primary">保存</button>
           </form>
         </div>
         <div class="card margin-top">
@@ -80,32 +83,35 @@
         </div>
       </div>
 
+      <!-- 音楽タブ -->
       <div id="tab-playlist" class="tab-content">
         <div class="card">
-          <h3>PLAYLIST</h3>
+          <h3>プレイリスト</h3>
           <label for="music-files-input" class="file-upload-area">
-            <span>ADD MUSIC</span>
+            <span>曲を追加（ファイルから）</span>
             <input type="file" id="music-files-input" multiple accept=".mp3,.m4a,.wav,.aac" class="hide">
           </label>
           <div class="margin-top-sm">
             <select id="play-mode" class="select-full">
-              <option value="shuffle" selected>SHUFFLE</option>
-              <option value="sequence">ORDER</option>
+              <option value="shuffle" selected>シャッフル再生</option>
+              <option value="sequence">順番に再生</option>
             </select>
           </div>
           <div class="margin-top-sm">
-            <label>VOLUME</label>
+            <label>音量調整</label>
             <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.8" style="width:100%">
           </div>
+          <button id="test-audio-btn" class="btn btn-secondary margin-top-sm">音が出るかテスト</button>
         </div>
         <div class="card margin-top">
           <ul id="songs-list" class="songs-list"></ul>
         </div>
       </div>
 
+      <!-- 表示タブ -->
       <div id="tab-display" class="tab-content">
         <div class="card">
-          <h3>THEME</h3>
+          <h3>テーマカラー</h3>
           <div class="theme-selector">
             <button class="theme-btn btn-amber active" data-theme="amber"></button>
             <button class="theme-btn btn-mint" data-theme="mint"></button>
@@ -115,25 +121,27 @@
           </div>
         </div>
         <div class="card margin-top">
-          <h3>BRIGHTNESS</h3>
+          <h3>画面の明るさ</h3>
           <input type="range" id="brightness-slider" min="0" max="90" value="0" style="width:100%">
         </div>
       </div>
     </section>
   </div>
 
+  <!-- 鳴動画面 -->
   <div id="alarm-ringing-overlay" class="alarm-ringing-overlay hide">
     <div class="ringing-card">
       <div class="ringing-bell">🔔</div>
-      <h2 class="ringing-title">ALARM!</h2>
+      <h2 class="ringing-title">起床時間です</h2>
       <div id="ringing-song-title" class="ringing-song-title"></div>
       <div class="ringing-actions">
-        <button id="snooze-btn" class="btn btn-secondary">SNOOZE</button>
-        <button id="dismiss-btn" class="btn btn-danger">STOP</button>
+        <button id="snooze-btn" class="btn btn-secondary">スヌーズ</button>
+        <button id="dismiss-btn" class="btn btn-primary">停止</button>
       </div>
     </div>
   </div>
 
+  <!-- スリープ防止ビデオ（必須） -->
   <video id="dummy-video" class="hide" loop playsinline muted src="data:video/mp4;base64,AAAAHGZ0eXBtcDQyAAAAAG1wNDJpc29tAAAAE2ZyZWUAAAAlbWRhdGEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAADBtZGloAAAAACQAAAAAc291bQAAAAAAAAAAAAAAAFhBVkMwAAAAAAAAAAAAAAAA"></video>
 
   <script src="app.js"></script>
