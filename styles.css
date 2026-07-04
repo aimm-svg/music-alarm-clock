@@ -49,7 +49,13 @@ body.fullscreen-active .clock-text { font-size: 18vw; }
 
 /* UI要素 */
 .clock-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 24px; padding: 30px 10px; text-align: center; margin-bottom: 20px; }
-.clock-text { font-family: var(--font-clock); font-size: 4rem; color: var(--accent-color); text-shadow: 0 0 20px var(--accent-glow); margin: 10px 0; cursor: pointer; }
+.clock-text {
+  font-size: 4.5rem;
+  font-weight: normal;
+  color: var(--accent-color);
+  text-shadow: 0 0 15px var(--accent-glow);
+  /* 視認性向上のため、少し背景に薄い文字色で「88:88」を置くテクニックも可能です */
+}
 .seconds-text { font-size: 2rem; opacity: 0.6; }
 .date-text { font-size: 1.1rem; color: var(--text-muted); }
 .next-alarm-info { font-size: 0.85rem; color: var(--text-muted); padding: 5px 0; }
@@ -72,7 +78,14 @@ body.fullscreen-active .clock-text { font-size: 18vw; }
 .weekday-checkbox span { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border-radius: 10px; font-size: 0.8rem; cursor: pointer; }
 .weekday-checkbox input:checked + span { background: var(--accent-color); color: #000; }
 
-input[type="time"], select { width: 100%; padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1); font-size: 1rem; }
+/* 音量スライダーのスタイル */
+input[type="range"] {
+  accent-color: var(--accent-color);
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.1);
+  -webkit-appearance: none;
+}
 .form-row { display: flex; gap: 10px; }
 
 .theme-selector { display: flex; justify-content: space-around; }
@@ -90,8 +103,15 @@ input[type="time"], select { width: 100%; padding: 12px; border-radius: 10px; ba
 .margin-top { margin-top: 20px; }
 .margin-top-sm { margin-top: 10px; }
 
-.file-upload-area { display: block; border: 2px dashed rgba(255,255,255,0.2); padding: 30px; text-align: center; border-radius: 15px; cursor: pointer; }
-.select-full { margin-top: 10px; width: 100%; }
-
+.file-upload-area:active {
+  background: rgba(var(--accent-rgb), 0.1);
+}
 .alarm-list, .songs-list { list-style: none; }
 .alarm-item, .song-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+/* --- デジタルフォントの強化 --- */
+.digital-font {
+  font-family: 'Share Tech Mono', monospace;
+  letter-spacing: 2px;
+  font-variant-numeric: tabular-nums; /* 数字の幅を一定に */
+}
