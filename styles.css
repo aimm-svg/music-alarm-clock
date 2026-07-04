@@ -1,109 +1,111 @@
 :root {
   --font-main: 'Outfit', sans-serif;
-  --font-clock: 'DSEG7-Classic', sans-serif;
-  --bg-color: #0b0c10;
-  --card-bg: rgba(20, 22, 30, 0.7);
+  --font-digital: 'DSEG7-Classic', sans-serif;
+  --bg-color: #080808;
+  --card-bg: rgba(20, 20, 25, 0.8);
   --card-border: rgba(255, 255, 255, 0.1);
-  --text-main: #e0e6ed;
-  --text-muted: #8892b0;
+  --text-main: #e0e0e0;
+  --text-muted: #707070;
   --accent-color: #ffb74d;
-  --accent-glow: rgba(255, 183, 77, 0.4);
+  --accent-glow: rgba(255, 183, 77, 0.5);
 }
 
-body.theme-mint { --accent-color: #81c784; --accent-glow: rgba(129, 199, 132, 0.4); }
-body.theme-lavender { --accent-color: #b39ddb; --accent-glow: rgba(179, 157, 219, 0.4); }
-body.theme-rose { --accent-color: #f48fb1; --accent-glow: rgba(244, 143, 177, 0.4); }
-body.theme-blue { --accent-color: #90caf9; --accent-glow: rgba(144, 202, 249, 0.4); }
+body.theme-mint { --accent-color: #81c784; --accent-glow: rgba(129, 199, 132, 0.5); }
+body.theme-lavender { --accent-color: #b39ddb; --accent-glow: rgba(179, 157, 219, 0.5); }
+body.theme-rose { --accent-color: #f48fb1; --accent-glow: rgba(244, 143, 177, 0.5); }
+body.theme-blue { --accent-color: #90caf9; --accent-glow: rgba(144, 202, 249, 0.5); }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body { width: 100%; height: 100%; font-family: var(--font-main); background-color: var(--bg-color); color: var(--text-main); overflow: hidden; }
+html, body { width: 100%; height: 100%; background-color: var(--bg-color); color: var(--text-main); font-family: var(--font-main); overflow: hidden; }
 
-/* iPad対策: メインコンテンツを最前面に */
 .app-container {
   max-width: 600px;
   margin: 0 auto;
   padding: 20px;
   height: 100%;
-  position: relative;
-  z-index: 100;
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: 100;
 }
 
 .dimmer-overlay {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
   background-color: rgba(0, 0, 0, 0);
-  z-index: 50;
+  z-index: 200; /* 全画面よりもさらに上にする場合は調整 */
   pointer-events: none;
 }
 
-/* デジタル時計表示 */
-.digital-clock-container {
+/* 7セグメント表示のレイアウト */
+.digital-clock-outer {
   position: relative;
   display: inline-block;
   margin: 20px 0;
+  font-style: italic; /* デジタル時計特有の傾き */
 }
 
-.clock-bg {
+.clock-bg-layer {
   position: absolute;
   top: 0; left: 0; width: 100%;
-  color: rgba(255, 255, 255, 0.03);
-  font-family: var(--font-clock);
-  font-size: 4.5rem;
+  color: rgba(255, 255, 255, 0.03); /* 消灯しているセグメント */
+  font-family: var(--font-digital);
+  font-size: 5rem;
   z-index: 1;
-  font-style: italic;
 }
 
-.clock-text {
+.clock-main-layer {
   position: relative;
-  font-family: var(--font-clock);
-  font-size: 4.5rem;
+  font-family: var(--font-digital);
+  font-size: 5rem;
   color: var(--accent-color);
   text-shadow: 0 0 20px var(--accent-glow);
   z-index: 2;
-  font-style: italic;
   font-variant-numeric: tabular-nums;
-  cursor: pointer;
 }
 
-.seconds-bg { font-size: 2.2rem; }
-.seconds-text { font-size: 2.2rem; opacity: 0.7; }
+.sec-bg { font-size: 2.5rem; }
+.sec-main { font-size: 2.5rem; opacity: 0.8; }
 
 /* 全画面モード */
 body.fullscreen-active .app-header, 
 body.fullscreen-active .controls-section { display: none !important; }
-body.fullscreen-active .app-container { height: 100vh; justify-content: center; }
-body.fullscreen-active .clock-card { border: none; background: transparent; box-shadow: none; width: 100%; }
-body.fullscreen-active .clock-bg, 
-body.fullscreen-active .clock-text { font-size: 18vw; }
-body.fullscreen-active .seconds-bg, 
-body.fullscreen-active .seconds-text { font-size: 9vw; }
+body.fullscreen-active .app-container { height: 100vh; justify-content: center; max-width: none; }
+body.fullscreen-active .clock-card { background: transparent; border: none; box-shadow: none; width: 100%; }
+body.fullscreen-active .clock-bg-layer,
+body.fullscreen-active .clock-main-layer { font-size: 20vw; }
+body.fullscreen-active .sec-bg,
+body.fullscreen-active .sec-main { font-size: 10vw; }
 
-/* カード・タブ UI */
-.clock-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 30px; padding: 40px 10px; text-align: center; margin-bottom: 20px; }
-.date-text { font-size: 1.2rem; color: var(--text-muted); }
-.next-alarm-info { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px; }
+/* カード UI */
+.clock-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 32px; padding: 40px 10px; text-align: center; margin-bottom: 20px; }
+.date-text { font-size: 1.2rem; color: var(--text-muted); font-weight: bold; }
+.next-alarm-info { font-size: 0.9rem; color: var(--text-muted); margin: 10px 0; }
 
-.tabs { display: flex; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 15px; margin-bottom: 20px; }
-.tab-btn { flex: 1; padding: 12px; border: none; background: none; color: var(--text-muted); border-radius: 10px; font-weight: bold; font-size: 0.9rem; cursor: pointer; }
+.tabs { display: flex; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 16px; margin-bottom: 20px; }
+.tab-btn { flex: 1; padding: 12px; border: none; background: none; color: var(--text-muted); border-radius: 12px; font-weight: bold; cursor: pointer; }
 .tab-btn.active { background: var(--accent-color); color: #000; }
 
 .tab-content { display: none; }
-.tab-content.active { display: block; height: 300px; overflow-y: auto; }
+.tab-content.active { display: block; max-height: 40vh; overflow-y: auto; }
 
 .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px; padding: 20px; margin-bottom: 15px; }
-.btn { width: 100%; padding: 16px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; font-size: 1rem; }
+.btn { width: 100%; padding: 16px; border-radius: 14px; border: none; font-weight: bold; cursor: pointer; font-size: 1rem; margin-top: 10px; }
 .btn-primary { background: var(--accent-color); color: #000; }
-.btn-fullscreen-toggle { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; }
+.btn-secondary { background: rgba(255,255,255,0.1); color: #fff; }
+.btn-danger { background: #ff4444; color: #fff; }
+.btn-fullscreen-toggle { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #888; padding: 8px 16px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; margin-top: 10px; }
 
 .weekdays-select { display: flex; justify-content: space-between; margin: 15px 0; }
 .weekday-checkbox input { display: none; }
-.weekday-checkbox span { width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border-radius: 12px; font-size: 0.8rem; }
+.weekday-checkbox span { width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border-radius: 12px; font-size: 0.8rem; font-weight: bold; }
 .weekday-checkbox input:checked + span { background: var(--accent-color); color: #000; }
 
-.theme-selector { display: flex; justify-content: space-around; margin-top: 10px; }
-.theme-btn { width: 45px; height: 45px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; }
+input[type="time"], select { width: 100%; padding: 14px; border-radius: 12px; background: #1a1a1a; color: #fff; border: 1px solid #333; font-size: 1.1rem; }
+.form-row { display: flex; gap: 10px; }
+
+.theme-selector { display: flex; justify-content: space-around; margin-top: 15px; }
+.theme-btn { width: 44px; height: 44px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; }
 .theme-btn.active { border-color: #fff; }
 .btn-amber { background: #ffb74d; }
 .btn-mint { background: #81c784; }
@@ -111,19 +113,14 @@ body.fullscreen-active .seconds-text { font-size: 9vw; }
 .btn-rose { background: #f48fb1; }
 .btn-blue { background: #90caf9; }
 
-/* 鳴動画面 */
-.alarm-ringing-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-.ringing-card { background: #111; padding: 50px 30px; border-radius: 40px; text-align: center; width: 100%; max-width: 400px; border: 2px solid var(--accent-color); }
-.ringing-title { font-size: 1.8rem; color: var(--accent-color); margin: 20px 0; }
-.ringing-song-title { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; margin-bottom: 30px; }
+.alarm-ringing-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.98); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.ringing-card { background: #111; padding: 60px 40px; border-radius: 40px; text-align: center; width: 100%; max-width: 420px; border: 2px solid var(--accent-color); }
+.ringing-title { font-family: var(--font-digital); font-size: 3rem; color: var(--accent-color); margin-bottom: 20px; font-style: italic; }
 
 .hide { display: none !important; }
 .margin-top { margin-top: 20px; }
 .margin-top-sm { margin-top: 10px; }
-.select-full { width: 100%; padding: 12px; border-radius: 10px; background: #222; color: #fff; border: 1px solid #444; margin-top: 10px; }
-input[type="time"] { background: #222; color: #fff; border: 1px solid #444; padding: 10px; border-radius: 10px; font-size: 1.2rem; }
 
+.file-upload-area { display: block; border: 2px dashed rgba(255,255,255,0.2); padding: 30px; text-align: center; border-radius: 20px; cursor: pointer; }
 .songs-list, .alarm-list { list-style: none; }
-.song-item, .alarm-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-
-.file-upload-area { display: block; border: 2px dashed rgba(255,255,255,0.2); padding: 30px; text-align: center; border-radius: 15px; cursor: pointer; }
+.song-item, .alarm-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
